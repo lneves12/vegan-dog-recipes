@@ -1,13 +1,27 @@
 
+import { db } from '../db';
+import { recipesTable } from '../db/schema';
+import { eq } from 'drizzle-orm';
 import { type Recipe } from '../schema';
 
 export async function getRecipeById(id: number): Promise<Recipe | null> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is to fetch a specific recipe by its ID from the database.
-  // Future implementation should:
-  // - Query the database for the recipe with the given ID
-  // - Return null if recipe not found
-  // - Return the recipe object if found
-  
-  return Promise.resolve(null);
+  try {
+    const result = await db.select()
+      .from(recipesTable)
+      .where(eq(recipesTable.id, id))
+      .execute();
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const recipe = result[0];
+    return {
+      ...recipe,
+      created_at: recipe.created_at // Already a Date object from timestamp column
+    };
+  } catch (error) {
+    console.error('Recipe retrieval failed:', error);
+    throw error;
+  }
 }
